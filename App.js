@@ -12,28 +12,28 @@ function HomeScreen({ navigation }) {
       title: 'Buscar Plaza',
       subtitle: 'Encuentra parking disponible',
       icon: 'search',
-      color: '#4CAF50',
+      color: '#2C5F8D',
       screen: 'Buscar'
     },
     {
       title: 'Ofrecer Plaza',
       subtitle: 'Publica tu espacio',
       icon: 'add-circle',
-      color: '#2196F3',
+      color: '#4A90A4',
       action: () => alert('Próximamente: Ofrecer Plaza')
     },
     {
       title: 'Mis Reservas',
       subtitle: 'Ver reservas activas',
       icon: 'calendar',
-      color: '#FF9800',
+      color: '#5B7C99',
       action: () => alert('Próximamente: Mis Reservas')
     },
     {
       title: 'Mi Wallet',
       subtitle: 'Gestionar pagos',
       icon: 'wallet',
-      color: '#9C27B0',
+      color: '#6B7C93',
       screen: 'Wallet'
     },
   ];
@@ -49,7 +49,7 @@ function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.headerContainer}>
-        <Text style={styles.logo}>🅿️ ParkSwap</Text>
+        <Text style={styles.logo}>🅿️arkSwap</Text>
         <Text style={styles.welcome}>Intercambia parking fácilmente</Text>
       </View>
 
