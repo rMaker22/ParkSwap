@@ -39,14 +39,7 @@ function ProfileScreen() {
 
 export default function AppNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: '#1E3A5F',
-        tabBarInactiveTintColor: '#888',
-        headerStyle: { backgroundColor: '#1E3A5F' },
-        headerTintColor: '#fff',
-      }}
-    >
+    <Tab.Navigator>
       <Tab.Screen name="Inicio" component={HomeScreen} />
       <Tab.Screen name="Buscar" component={SearchScreen} />
       <Tab.Screen name="Wallet" component={WalletScreen} />
