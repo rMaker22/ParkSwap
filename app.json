@@ -12,8 +12,12 @@
       "backgroundColor": "#1E3A5F"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0,
-      "enabled": false
+      "enabled": false,
+      "checkAutomatically": "never",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     },
     "assetBundlePatterns": [
       "**/*"
