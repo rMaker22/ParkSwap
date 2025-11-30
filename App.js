@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import AuthNavigator from './src/navigation/AuthNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -108,50 +110,91 @@ function WalletScreen() {
 }
 
 function ProfileScreen() {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mi Perfil</Text>
+      {user && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ marginBottom: 10, color: '#666' }}>
+            {user.email}
+          </Text>
+          <TouchableOpacity
+            style={styles.signOutButton}
+            onPress={handleSignOut}
+          >
+            <Text style={styles.signOutText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
 
+function MainTabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Inicio') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Buscar') {
+            iconName = focused ? 'search' : 'search-outline';
+          } else if (route.name === 'Wallet') {
+            iconName = focused ? 'wallet' : 'wallet-outline';
+          } else if (route.name === 'Perfil') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#1E3A5F',
+        tabBarInactiveTintColor: 'gray',
+        headerStyle: {
+          backgroundColor: '#1E3A5F',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      })}
+    >
+      <Tab.Screen name="Inicio" component={HomeScreen} />
+      <Tab.Screen name="Buscar" component={SearchScreen} />
+      <Tab.Screen name="Wallet" component={WalletScreen} />
+      <Tab.Screen name="Perfil" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#1E3A5F" />
+      </View>
+    );
+  }
+
+  return user ? <MainTabNavigator /> : <AuthNavigator />;
+}
+
 export default function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-
-            if (route.name === 'Inicio') {
-              iconName = focused ? 'home' : 'home-outline';
-            } else if (route.name === 'Buscar') {
-              iconName = focused ? 'search' : 'search-outline';
-            } else if (route.name === 'Wallet') {
-              iconName = focused ? 'wallet' : 'wallet-outline';
-            } else if (route.name === 'Perfil') {
-              iconName = focused ? 'person' : 'person-outline';
-            }
-
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#1E3A5F',
-          tabBarInactiveTintColor: 'gray',
-          headerStyle: {
-            backgroundColor: '#1E3A5F',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        })}
-      >
-        <Tab.Screen name="Inicio" component={HomeScreen} />
-        <Tab.Screen name="Buscar" component={SearchScreen} />
-        <Tab.Screen name="Wallet" component={WalletScreen} />
-        <Tab.Screen name="Perfil" component={ProfileScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <AppContent />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
 
@@ -256,5 +299,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 8,
+  },
+  signOutButton: {
+    backgroundColor: '#d32f2f',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+  },
+  signOutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
