@@ -1,12 +1,18 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import AuthNavigator from './src/navigation/AuthNavigator';
+import ProfileScreen from './src/modules/profile/ProfileScreen';
+import EditProfileScreen from './src/modules/profile/EditProfileScreen';
+import VehiclesListScreen from './src/modules/vehicles/VehiclesListScreen';
+import AddVehicleScreen from './src/modules/vehicles/AddVehicleScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 function HomeScreen({ navigation }) {
   const mainActions = [
@@ -109,30 +115,41 @@ function WalletScreen() {
   );
 }
 
-function ProfileScreen() {
-  const { user, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
+// Stack Navigator para Perfil
+function ProfileStackNavigator() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mi Perfil</Text>
-      {user && (
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ marginBottom: 10, color: '#666' }}>
-            {user.email}
-          </Text>
-          <TouchableOpacity
-            style={styles.signOutButton}
-            onPress={handleSignOut}
-          >
-            <Text style={styles.signOutText}>Cerrar Sesión</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#1E3A5F',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="ProfileMain"
+        component={ProfileScreen}
+        options={{ title: 'Mi Perfil' }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{ title: 'Editar Perfil' }}
+      />
+      <Stack.Screen
+        name="VehiclesList"
+        component={VehiclesListScreen}
+        options={{ title: 'Mis Vehículos' }}
+      />
+      <Stack.Screen
+        name="AddVehicle"
+        component={AddVehicleScreen}
+        options={{ title: 'Añadir Vehículo' }}
+      />
+    </Stack.Navigator>
   );
 }
 
@@ -169,7 +186,11 @@ function MainTabNavigator() {
       <Tab.Screen name="Inicio" component={HomeScreen} />
       <Tab.Screen name="Buscar" component={SearchScreen} />
       <Tab.Screen name="Wallet" component={WalletScreen} />
-      <Tab.Screen name="Perfil" component={ProfileScreen} />
+      <Tab.Screen
+        name="Perfil"
+        component={ProfileStackNavigator}
+        options={{ headerShown: false }}
+      />
     </Tab.Navigator>
   );
 }
@@ -299,17 +320,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 8,
-  },
-  signOutButton: {
-    backgroundColor: '#d32f2f',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-  },
-  signOutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
