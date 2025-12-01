@@ -68,39 +68,84 @@ export default function VehiclesListScreen({ navigation }) {
     }
   };
 
-  const handleDeleteVehicle = (vehicleId, vehicleName) => {
-    Alert.alert(
-      'Eliminar Vehículo',
-      `¿Estás seguro de que quieres eliminar ${vehicleName}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Intentando eliminar vehículo:', vehicleId);
-              const { error } = await deleteVehicle(vehicleId);
+  const handleDeleteVehicle = async (vehicleId, vehicleName) => {
+    console.log('🔴 [VehiclesListScreen] handleDeleteVehicle ejecutado:', vehicleId);
 
-              if (error) {
-                console.error('Error al eliminar:', error);
-                Alert.alert(
-                  'Error',
-                  `No se pudo eliminar el vehículo: ${error.message || 'Error desconocido'}`
-                );
-              } else {
-                console.log('Vehículo eliminado exitosamente');
-                Alert.alert('Éxito', 'Vehículo eliminado correctamente');
-                await loadVehicles();
-              }
-            } catch (error) {
-              console.error('Excepción al eliminar:', error);
-              Alert.alert('Error', 'Ocurrió un error inesperado al eliminar el vehículo');
-            }
+    // Detectar si estamos en web o móvil
+    const isWeb = typeof window !== 'undefined' && window.confirm;
+
+    let confirmed = false;
+
+    if (isWeb) {
+      console.log('🔴 [VehiclesListScreen] Ejecutando en Web - usando window.confirm');
+      confirmed = window.confirm(`¿Estás seguro de que quieres eliminar ${vehicleName}?`);
+    } else {
+      console.log('🔴 [VehiclesListScreen] Ejecutando en Móvil - usando Alert.alert');
+      // En móvil, mostrar Alert nativo
+      Alert.alert(
+        'Eliminar Vehículo',
+        `¿Estás seguro de que quieres eliminar ${vehicleName}?`,
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => console.log('🔴 [VehiclesListScreen] Usuario canceló la eliminación')
           },
-        },
-      ]
-    );
+          {
+            text: 'Eliminar',
+            style: 'destructive',
+            onPress: async () => {
+              await executeDeleteVehicle(vehicleId);
+            },
+          },
+        ]
+      );
+      return; // Salir aquí para móvil, ya que el Alert maneja el flujo
+    }
+
+    // Para web, continuar con el flujo si confirmó
+    if (confirmed) {
+      console.log('🔴 [VehiclesListScreen] Usuario confirmó en Web');
+      await executeDeleteVehicle(vehicleId);
+    } else {
+      console.log('🔴 [VehiclesListScreen] Usuario canceló en Web');
+    }
+  };
+
+  const executeDeleteVehicle = async (vehicleId) => {
+    try {
+      console.log('🔴 [VehiclesListScreen] Intentando eliminar vehículo:', vehicleId);
+      const { error } = await deleteVehicle(vehicleId);
+
+      if (error) {
+        console.error('🔴 [VehiclesListScreen] Error al eliminar:', error);
+        const errorMsg = `No se pudo eliminar el vehículo: ${error.message || 'Error desconocido'}`;
+
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert(errorMsg);
+        } else {
+          Alert.alert('Error', errorMsg);
+        }
+      } else {
+        console.log('🔴 [VehiclesListScreen] Vehículo eliminado exitosamente');
+
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert('Vehículo eliminado correctamente');
+        } else {
+          Alert.alert('Éxito', 'Vehículo eliminado correctamente');
+        }
+
+        await loadVehicles();
+      }
+    } catch (error) {
+      console.error('🔴 [VehiclesListScreen] Excepción al eliminar:', error);
+
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert('Error: Ocurrió un error inesperado al eliminar el vehículo');
+      } else {
+        Alert.alert('Error', 'Ocurrió un error inesperado al eliminar el vehículo');
+      }
+    }
   };
 
   const renderVehicleItem = ({ item }) => {
