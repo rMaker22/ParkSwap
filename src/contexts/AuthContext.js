@@ -58,11 +58,8 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      // Limpiar el estado local primero
-      setUser(null);
-      setSession(null);
-
-      // Luego cerrar sesión en Supabase
+      // Cerrar sesión en Supabase
+      // El listener onAuthStateChange se encargará de limpiar el estado local automáticamente
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Error al cerrar sesión:', error);
