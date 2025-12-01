@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,11 +10,41 @@ import ProfileScreen from './src/modules/profile/ProfileScreen';
 import EditProfileScreen from './src/modules/profile/EditProfileScreen';
 import VehiclesListScreen from './src/modules/vehicles/VehiclesListScreen';
 import AddVehicleScreen from './src/modules/vehicles/AddVehicleScreen';
+import { getUserVehicles } from './src/services/vehicleService';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 function HomeScreen({ navigation }) {
+  const [primaryVehicle, setPrimaryVehicle] = useState(null);
+  const [loadingVehicle, setLoadingVehicle] = useState(true);
+
+  useEffect(() => {
+    loadPrimaryVehicle();
+  }, []);
+
+  // Recargar vehículo cuando la pantalla recibe foco
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadPrimaryVehicle();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const loadPrimaryVehicle = async () => {
+    try {
+      const { data, error } = await getUserVehicles();
+      if (!error && data) {
+        const primary = data.find(v => v.is_primary);
+        setPrimaryVehicle(primary || data[0] || null);
+      }
+    } catch (error) {
+      console.error('Error al cargar vehículo:', error);
+    } finally {
+      setLoadingVehicle(false);
+    }
+  };
+
   const mainActions = [
     {
       title: 'Buscar Plaza',
@@ -60,6 +90,54 @@ function HomeScreen({ navigation }) {
         <Text style={styles.logo}>🅿️arkSwap</Text>
         <Text style={styles.welcome}>Intercambia parking fácilmente</Text>
       </View>
+
+      {/* Tarjeta del vehículo principal */}
+      {!loadingVehicle && (
+        <View style={styles.vehicleSection}>
+          {primaryVehicle ? (
+            <TouchableOpacity
+              style={styles.vehicleCard}
+              onPress={() => navigation.navigate('Perfil', { screen: 'VehiclesList' })}
+              activeOpacity={0.8}
+            >
+              <View style={styles.vehicleCardHeader}>
+                <View style={styles.vehicleIconLarge}>
+                  <Ionicons name="car-sport" size={40} color="#1E3A5F" />
+                </View>
+                <View style={styles.vehicleCardInfo}>
+                  <View style={styles.vehicleCardTitleRow}>
+                    <Text style={styles.vehicleCardTitle}>
+                      {primaryVehicle.brand} {primaryVehicle.model}
+                    </Text>
+                    {primaryVehicle.is_primary && (
+                      <View style={styles.primaryBadgeHome}>
+                        <Ionicons name="star" size={12} color="#fff" />
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.vehicleCardSubtitle}>Tu vehículo actual</Text>
+                  {primaryVehicle.license_plate && (
+                    <View style={styles.licensePlateContainer}>
+                      <Text style={styles.licensePlate}>{primaryVehicle.license_plate}</Text>
+                    </View>
+                  )}
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#B0C4DE" />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.addVehicleCard}
+              onPress={() => navigation.navigate('Perfil', { screen: 'AddVehicle' })}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="car-sport-outline" size={40} color="#4A90A4" />
+              <Text style={styles.addVehicleTitle}>Añade tu vehículo</Text>
+              <Text style={styles.addVehicleSubtitle}>Para empezar a usar ParkSwap</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       <View style={styles.actionsContainer}>
         {mainActions.map((item, index) => (
@@ -320,5 +398,102 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 8,
+  },
+  // Estilos de la sección del vehículo
+  vehicleSection: {
+    marginHorizontal: 16,
+    marginTop: -30,
+    marginBottom: 16,
+  },
+  vehicleCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4A90A4',
+  },
+  vehicleCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  vehicleIconLarge: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#E8F4F8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  vehicleCardInfo: {
+    flex: 1,
+  },
+  vehicleCardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  vehicleCardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E3A5F',
+    marginRight: 8,
+  },
+  primaryBadgeHome: {
+    backgroundColor: '#FFB74D',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  vehicleCardSubtitle: {
+    fontSize: 13,
+    color: '#4A90A4',
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  licensePlateContainer: {
+    backgroundColor: '#1E3A5F',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    borderWidth: 2,
+    borderColor: '#FFB74D',
+  },
+  licensePlate: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+  },
+  addVehicleCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#4A90A4',
+    borderStyle: 'dashed',
+    minHeight: 140,
+  },
+  addVehicleTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1E3A5F',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  addVehicleSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
   },
 });
