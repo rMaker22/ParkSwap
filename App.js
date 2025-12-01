@@ -87,7 +87,20 @@ function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.headerContainer}>
-        <Text style={styles.logo}>🅿️arkSwap</Text>
+        {/* Logo profesional con icono y texto */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoIconWrapper}>
+            <View style={styles.logoIconOuter}>
+              <View style={styles.logoIconInner}>
+                <Ionicons name="car-sport" size={32} color="#fff" />
+              </View>
+            </View>
+          </View>
+          <View style={styles.logoTextContainer}>
+            <Text style={styles.logoText}>Park</Text>
+            <Text style={[styles.logoText, styles.logoTextAccent]}>Swap</Text>
+          </View>
+        </View>
         <Text style={styles.welcome}>Intercambia parking fácilmente</Text>
       </View>
 
@@ -97,7 +110,16 @@ function HomeScreen({ navigation }) {
           {primaryVehicle ? (
             <TouchableOpacity
               style={styles.vehicleCard}
-              onPress={() => navigation.navigate('Perfil', { screen: 'VehiclesList' })}
+              onPress={() => {
+                // Navegar al tab de Perfil primero, luego a VehiclesList
+                navigation.navigate('Perfil');
+                setTimeout(() => {
+                  navigation.navigate('Perfil', {
+                    screen: 'VehiclesList',
+                    initial: false
+                  });
+                }, 100);
+              }}
               activeOpacity={0.8}
             >
               <View style={styles.vehicleCardHeader}>
@@ -128,7 +150,16 @@ function HomeScreen({ navigation }) {
           ) : (
             <TouchableOpacity
               style={styles.addVehicleCard}
-              onPress={() => navigation.navigate('Perfil', { screen: 'AddVehicle' })}
+              onPress={() => {
+                // Navegar al tab de Perfil primero, luego a AddVehicle
+                navigation.navigate('Perfil');
+                setTimeout(() => {
+                  navigation.navigate('Perfil', {
+                    screen: 'AddVehicle',
+                    initial: false
+                  });
+                }, 100);
+              }}
               activeOpacity={0.8}
             >
               <Ionicons name="car-sport-outline" size={40} color="#4A90A4" />
@@ -311,18 +342,68 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: '#1E3A5F',
     padding: 30,
-    paddingTop: 20,
+    paddingTop: 25,
+    paddingBottom: 35,
     alignItems: 'center',
   },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  logoIconWrapper: {
+    marginRight: 12,
+  },
+  logoIconOuter: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  logoIconInner: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFB74D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FFB74D',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  logoTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  logoText: {
+    fontSize: 40,
+    fontWeight: '800',
     color: '#fff',
-    marginBottom: 8,
+    letterSpacing: -1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  logoTextAccent: {
+    color: '#FFB74D',
+    textShadowColor: 'rgba(255, 183, 77, 0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   welcome: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#B0C4DE',
+    letterSpacing: 0.5,
+    fontWeight: '400',
   },
   actionsContainer: {
     padding: 16,
