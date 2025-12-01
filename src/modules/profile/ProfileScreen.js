@@ -53,33 +53,47 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const handleSignOut = async () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Cerrando sesión...');
-              const { error } = await signOut();
+    console.log('🔴 [ProfileScreen] handleSignOut ejecutado - Botón presionado');
 
-              if (error) {
-                console.error('Error al cerrar sesión:', error);
-                Alert.alert('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
-              } else {
-                console.log('Sesión cerrada exitosamente');
-              }
-            } catch (error) {
-              console.error('Excepción al cerrar sesión:', error);
-              Alert.alert('Error', 'Ocurrió un error inesperado al cerrar sesión');
-            }
+    try {
+      console.log('🔴 [ProfileScreen] Mostrando Alert de confirmación');
+
+      Alert.alert(
+        'Cerrar Sesión',
+        '¿Estás seguro de que quieres cerrar sesión?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => console.log('🔴 [ProfileScreen] Usuario canceló el cierre de sesión')
           },
-        },
-      ]
-    );
+          {
+            text: 'Cerrar Sesión',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                console.log('🔴 [ProfileScreen] Usuario confirmó - Iniciando cierre de sesión...');
+                const { error } = await signOut();
+
+                if (error) {
+                  console.error('🔴 [ProfileScreen] Error al cerrar sesión:', error);
+                  Alert.alert('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
+                } else {
+                  console.log('🔴 [ProfileScreen] Sesión cerrada exitosamente desde ProfileScreen');
+                }
+              } catch (error) {
+                console.error('🔴 [ProfileScreen] Excepción al cerrar sesión:', error);
+                Alert.alert('Error', 'Ocurrió un error inesperado al cerrar sesión');
+              }
+            },
+          },
+        ]
+      );
+
+      console.log('🔴 [ProfileScreen] Alert mostrado correctamente');
+    } catch (error) {
+      console.error('🔴 [ProfileScreen] Error al mostrar Alert:', error);
+    }
   };
 
   const handleEditProfile = () => {
