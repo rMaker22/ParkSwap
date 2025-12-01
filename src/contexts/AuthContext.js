@@ -58,10 +58,20 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
+      // Limpiar el estado local primero
+      setUser(null);
+      setSession(null);
+
+      // Luego cerrar sesión en Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error('Error al cerrar sesión:', error);
+        throw error;
+      }
+
       return { error: null };
     } catch (error) {
+      console.error('Error en signOut:', error);
       return { error };
     }
   };

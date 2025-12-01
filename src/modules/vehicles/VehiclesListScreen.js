@@ -78,11 +78,24 @@ export default function VehiclesListScreen({ navigation }) {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
-            const { error } = await deleteVehicle(vehicleId);
-            if (error) {
-              Alert.alert('Error', 'No se pudo eliminar el vehículo');
-            } else {
-              loadVehicles();
+            try {
+              console.log('Intentando eliminar vehículo:', vehicleId);
+              const { error } = await deleteVehicle(vehicleId);
+
+              if (error) {
+                console.error('Error al eliminar:', error);
+                Alert.alert(
+                  'Error',
+                  `No se pudo eliminar el vehículo: ${error.message || 'Error desconocido'}`
+                );
+              } else {
+                console.log('Vehículo eliminado exitosamente');
+                Alert.alert('Éxito', 'Vehículo eliminado correctamente');
+                await loadVehicles();
+              }
+            } catch (error) {
+              console.error('Excepción al eliminar:', error);
+              Alert.alert('Error', 'Ocurrió un error inesperado al eliminar el vehículo');
             }
           },
         },

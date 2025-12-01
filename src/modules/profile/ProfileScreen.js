@@ -62,7 +62,20 @@ export default function ProfileScreen({ navigation }) {
           text: 'Cerrar Sesión',
           style: 'destructive',
           onPress: async () => {
-            await signOut();
+            try {
+              console.log('Cerrando sesión...');
+              const { error } = await signOut();
+
+              if (error) {
+                console.error('Error al cerrar sesión:', error);
+                Alert.alert('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
+              } else {
+                console.log('Sesión cerrada exitosamente');
+              }
+            } catch (error) {
+              console.error('Excepción al cerrar sesión:', error);
+              Alert.alert('Error', 'Ocurrió un error inesperado al cerrar sesión');
+            }
           },
         },
       ]

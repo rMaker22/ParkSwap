@@ -111,15 +111,23 @@ export const setPrimaryVehicle = async (vehicleId) => {
 // Eliminar un vehículo
 export const deleteVehicle = async (vehicleId) => {
   try {
-    const { error } = await supabase
+    console.log('deleteVehicle: Eliminando vehículo con ID:', vehicleId);
+
+    const { data, error } = await supabase
       .from('vehicles')
       .delete()
-      .eq('id', vehicleId);
+      .eq('id', vehicleId)
+      .select();
 
-    if (error) throw error;
-    return { error: null };
+    if (error) {
+      console.error('Error de Supabase al eliminar:', error);
+      throw error;
+    }
+
+    console.log('deleteVehicle: Vehículo eliminado, respuesta:', data);
+    return { data, error: null };
   } catch (error) {
     console.error('Error al eliminar vehículo:', error);
-    return { error };
+    return { data: null, error };
   }
 };
