@@ -56,43 +56,72 @@ export default function ProfileScreen({ navigation }) {
     console.log('🔴 [ProfileScreen] handleSignOut ejecutado - Botón presionado');
 
     try {
-      console.log('🔴 [ProfileScreen] Mostrando Alert de confirmación');
+      // Para web, usar confirm del navegador; para móvil, usar Alert
+      const isWeb = typeof window !== 'undefined' && window.confirm;
 
-      Alert.alert(
-        'Cerrar Sesión',
-        '¿Estás seguro de que quieres cerrar sesión?',
-        [
-          {
-            text: 'Cancelar',
-            style: 'cancel',
-            onPress: () => console.log('🔴 [ProfileScreen] Usuario canceló el cierre de sesión')
-          },
-          {
-            text: 'Cerrar Sesión',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                console.log('🔴 [ProfileScreen] Usuario confirmó - Iniciando cierre de sesión...');
-                const { error } = await signOut();
+      let confirmed = false;
 
-                if (error) {
-                  console.error('🔴 [ProfileScreen] Error al cerrar sesión:', error);
-                  Alert.alert('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
-                } else {
-                  console.log('🔴 [ProfileScreen] Sesión cerrada exitosamente desde ProfileScreen');
-                }
-              } catch (error) {
-                console.error('🔴 [ProfileScreen] Excepción al cerrar sesión:', error);
-                Alert.alert('Error', 'Ocurrió un error inesperado al cerrar sesión');
-              }
+      if (isWeb) {
+        console.log('🔴 [ProfileScreen] Ejecutando en Web - usando window.confirm');
+        confirmed = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
+      } else {
+        console.log('🔴 [ProfileScreen] Ejecutando en Móvil - usando Alert.alert');
+        // En móvil, mostrar Alert nativo
+        Alert.alert(
+          'Cerrar Sesión',
+          '¿Estás seguro de que quieres cerrar sesión?',
+          [
+            {
+              text: 'Cancelar',
+              style: 'cancel',
+              onPress: () => console.log('🔴 [ProfileScreen] Usuario canceló el cierre de sesión')
             },
-          },
-        ]
-      );
+            {
+              text: 'Cerrar Sesión',
+              style: 'destructive',
+              onPress: async () => {
+                await executeSignOut();
+              },
+            },
+          ]
+        );
+        return; // Salir aquí para móvil, ya que el Alert maneja el flujo
+      }
 
-      console.log('🔴 [ProfileScreen] Alert mostrado correctamente');
+      // Para web, continuar con el flujo si confirmó
+      if (confirmed) {
+        console.log('🔴 [ProfileScreen] Usuario confirmó en Web');
+        await executeSignOut();
+      } else {
+        console.log('🔴 [ProfileScreen] Usuario canceló en Web');
+      }
     } catch (error) {
-      console.error('🔴 [ProfileScreen] Error al mostrar Alert:', error);
+      console.error('🔴 [ProfileScreen] Error en handleSignOut:', error);
+    }
+  };
+
+  const executeSignOut = async () => {
+    try {
+      console.log('🔴 [ProfileScreen] Iniciando cierre de sesión...');
+      const { error } = await signOut();
+
+      if (error) {
+        console.error('🔴 [ProfileScreen] Error al cerrar sesión:', error);
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert('Error: No se pudo cerrar sesión. Intenta de nuevo.');
+        } else {
+          Alert.alert('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
+        }
+      } else {
+        console.log('🔴 [ProfileScreen] Sesión cerrada exitosamente');
+      }
+    } catch (error) {
+      console.error('🔴 [ProfileScreen] Excepción al cerrar sesión:', error);
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert('Error: Ocurrió un error inesperado al cerrar sesión');
+      } else {
+        Alert.alert('Error', 'Ocurrió un error inesperado al cerrar sesión');
+      }
     }
   };
 
